@@ -1,0 +1,48 @@
+name: Testing
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  checks: write
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - run: |
+          echo "Build time"
+        shell: bash
+  
+  deploy-test:
+    name: deploy-test
+    runs-on: ubuntu-latest
+    environment: test
+    concurrency:
+      group: test
+    needs:
+      - build
+    timeout-minutes: 20
+    steps:
+      - run: |
+          echo "Deploy test"
+        shell: bash
+
+  deploy-prod:
+    name: deploy-prod
+    runs-on: ubuntu-latest
+    environment: prod
+    concurrency:
+      group: prod
+    needs:
+      - deploy-test
+    timeout-minutes: 20
+    steps:
+      - run: |
+          echo "Deploy prod"
+        shell: bash
